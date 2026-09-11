@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ScamShield — Scam Detector</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <header>
+            <div class="logo">🛡️ ScamShield</div>
+            <p>Detect scams before they hurt you.</p>
+        </header>
+
+        <main>
+
+            <section class="hero">
+                <h1>Is this a scam?</h1>
+                <p>Paste a suspicious message, email, or link below and analyze it.</p>
+            </section>
+
+            <section class="analyzer-card">
+
+                <label for="message">Paste suspicious content</label>
+
+                <textarea
+                    id="message"
+                    placeholder="Example: Congratulations! You have won ₹50,000. Click this link to claim your prize..."
+                ></textarea>
+
+                <button id="analyzeBtn">
+                    🔍 Analyze Now
+                </button>
+
+            </section>
+
+            <section id="result" class="result-card hidden">
+
+                <div class="result-header">
+                    <h2 id="riskTitle">Risk Analysis</h2>
+                    <span id="riskBadge">UNKNOWN</span>
+                </div>
+
+                <div class="scam-type">
+                    <span>Scam Type</span>
+                    <strong id="scamType">Unknown</strong>
+                </div>
+
+                <div class="scam-type">
+                    <span>Detection Confidence</span>
+                    <strong id="confidence">0%</strong>
+                </div>
+
+                <div class="score">
+                    <span>Risk Score</span>
+                    <strong id="riskScore">0/100</strong>
+                </div>
+
+                <div class="progress">
+                    <div id="riskBar"></div>
+                </div>
+
+                <h3>Why?</h3>
+                <ul id="reasons"></ul>
+
+                <div class="advice">
+                    <h3>🛡️ What should you do?</h3>
+                    <p id="adviceText"></p>
+                </div>
+
+            </section>
+
+        </main>
+
+        <footer>
+            <p>ScamShield © 2026</p>
+            <p>Stay alert. Stay protected.</p>
+        </footer>
+
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
