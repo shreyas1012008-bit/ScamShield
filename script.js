@@ -22,8 +22,35 @@ function analyzeMessage() {
     }
 
     let score = 0;
+    let riskFactors = 0;
     let detectedReasons = [];
 
+    // Common KYC Scam Phrases
+    if (
+        message.includes("kyc has expired") ||
+        message.includes("kyc expired") ||
+        message.includes("update your kyc") ||
+        message.includes("kyc verification") ||
+        message.includes("complete your kyc")
+    ) {
+        score += 20;
+
+        detectedReasons.push(
+            "Uses a common KYC-related request that may be used to pressure the recipient."
+        );
+    }
+
+    // Account Verification
+    if (
+        message.includes("verify your account") ||
+        message.includes("verify account") ||
+        message.includes("account details")
+    ) {
+        score += 10;
+        detectedReasons.push(
+            "Requests account verification or account details."
+        );
+    }
 
     // OTP / Password
     if (
@@ -33,12 +60,52 @@ function analyzeMessage() {
         message.includes("password") ||
         message.includes("pin")
     ) {
-        score += 35;
+        score += 25;
         detectedReasons.push(
             "Requests sensitive authentication information."
         );
     }
 
+    // Refund / Reward Fee Scam
+    if (
+        (
+            message.includes("refund") ||
+            message.includes("reward")
+        ) &&
+        (
+            message.includes("processing fee") ||
+            message.includes("claim fee") ||
+            message.includes("pay a fee") ||
+            message.includes("small fee")
+        )
+    ) {
+        score += 25;
+
+        detectedReasons.push(
+            "Requests an upfront fee to receive a refund or reward."
+        );
+    }
+
+    // Pay to Receive Money Scam
+    if (
+        (
+            message.includes("send money") ||
+            message.includes("send ₹") ||
+            message.includes("pay")
+        ) &&
+        (
+            message.includes("receive money") ||
+            message.includes("get money") ||
+            message.includes("receive your money") ||
+            message.includes("in your account")
+        )
+    ) {
+        score += 30;
+
+        detectedReasons.push(
+            "Requests payment before the recipient can receive money."
+        );
+    }
 
     // Money / Payment
     if (
@@ -50,7 +117,7 @@ function analyzeMessage() {
         message.includes("bank account") ||
         message.includes("deposit")
     ) {
-        score += 25;
+        score += 20;
         detectedReasons.push(
             "Requests or mentions a financial transaction."
         );
@@ -66,7 +133,7 @@ function analyzeMessage() {
         message.includes("arrest") ||
         message.includes("police")
     ) {
-        score += 30;
+        score += 25;
         detectedReasons.push(
             "Uses threats or fear to pressure the recipient."
         );
@@ -86,7 +153,7 @@ function analyzeMessage() {
         message.includes("within 24 hours") ||
         message.includes("today only")
     ) {
-        score += 20;
+        score += 10;
         detectedReasons.push(
             "Creates urgency or pressure to act quickly."
         );
@@ -94,6 +161,43 @@ function analyzeMessage() {
 
 
     // Prize / Lottery
+    // Strong Prize Scam Phrases
+    if (
+        message.includes("congratulations! you have won") ||
+        message.includes("you have won ₹") ||
+        message.includes("you won ₹") ||
+        message.includes("claim your prize") ||
+        message.includes("claim your reward")
+    ) {
+        score += 15;
+
+        detectedReasons.push(
+            "Uses a common prize-scam phrase to make an unexpected reward appear legitimate."
+        );
+    }
+
+    // Prize + Urgency
+    if (
+        (
+            message.includes("prize") ||
+            message.includes("reward") ||
+            message.includes("you won") ||
+            message.includes("you have won")
+        ) &&
+        (
+            message.includes("now") ||
+            message.includes("immediately") ||
+            message.includes("urgent") ||
+            message.includes("within 24 hours")
+        )
+    ) {
+        score += 15;
+
+        detectedReasons.push(
+            "Combines an unexpected prize or reward with urgent pressure to claim it."
+        );
+    }
+
     if (
         (
             message.includes("you won") ||
@@ -110,7 +214,7 @@ function analyzeMessage() {
             message.includes("reward")
         )
     ) {
-        score += 40;
+        score += 25;
 
         detectedReasons.push(
             "Claims that the recipient has unexpectedly won a prize or reward."
@@ -126,7 +230,7 @@ function analyzeMessage() {
         message.includes("personal details") ||
         message.includes("identity proof")
     ) {
-        score += 25;
+        score += 15;
         detectedReasons.push(
             "Requests potentially sensitive personal information."
         );
@@ -147,18 +251,24 @@ function analyzeMessage() {
     const hasNormalLink =
         message.includes("http://") ||
         message.includes("https://");
+    
+    const hasTrustedLink =
+        message.includes("google.com") ||
+        message.includes("microsoft.com") ||
+        message.includes("apple.com") ||
+        message.includes("amazon.com");
 
     if (hasShortenedLink) {
 
-        score += 40;
+        score += 30;
 
         detectedReasons.push(
             "Contains a suspicious or shortened link that may lead to a fraudulent website."
         );
 
-    } else if (hasNormalLink) {
+    } else if (hasNormalLink && !hasTrustedLink) {
 
-        score += 15;
+        score += 10;
 
         detectedReasons.push(
             "Contains a link. Verify the website before opening it."
@@ -178,7 +288,7 @@ function analyzeMessage() {
         )
     ) {
 
-        score += 20;
+        score += 15;
 
         detectedReasons.push(
             "Combines a suspicious link with urgency or pressure."
@@ -197,27 +307,46 @@ function analyzeMessage() {
         hasShortenedLink
     ) {
 
-        score += 25;
+        score += 15;
 
         detectedReasons.push(
             "Combines an unexpected prize or reward with a suspicious link."
         );
     }
 
+    // Job + Upfront Payment Scam
+    if (
+        (
+            message.includes("job") ||
+            message.includes("job offer") ||
+            message.includes("work from home")
+        ) &&
+        (
+            message.includes("registration fee") ||
+            message.includes("pay") ||
+            message.includes("fee")
+        )
+    ) {
+        score += 25;
+
+        detectedReasons.push(
+            "Requests an upfront payment or fee for a job opportunity."
+        );
+    }
 
     // Job Scam
     if (
         message.includes("job") ||
         message.includes("job offer")
     ) {
-        score += 15;
+        score += 10;
         detectedReasons.push(
             "Mentions a job opportunity."
         );
     }
 
     if (message.includes("work from home")) {
-        score += 15;
+        score += 10;
         detectedReasons.push(
             "Promotes a work-from-home opportunity."
         );
@@ -227,14 +356,14 @@ function analyzeMessage() {
         message.includes("earn ₹") ||
         message.includes("easy money")
     ) {
-        score += 20;
+        score += 15;
         detectedReasons.push(
             "Promises unusually easy or high earnings."
         );
     }
 
     if (message.includes("registration fee")) {
-        score += 30;
+        score += 20;
         detectedReasons.push(
             "Requests an upfront registration fee."
         );
@@ -244,7 +373,7 @@ function analyzeMessage() {
         message.includes("pay") &&
         message.includes("start")
     ) {
-        score += 20;
+        score += 15;
         detectedReasons.push(
             "Requests payment before starting the opportunity."
         );
@@ -266,7 +395,7 @@ function analyzeMessage() {
 
     if (isInvestment) {
 
-        score += 30;
+        score += 20;
 
         detectedReasons.push(
             "Promotes an investment opportunity or promises financial returns."
@@ -283,10 +412,13 @@ function analyzeMessage() {
             message.includes("deposit") ||
             message.includes("transfer") ||
             message.includes("upi") ||
-            message.includes("bank account")
+            message.includes("bank account") ||
+            message.includes("invest ₹") ||
+            message.includes("invest rs") ||
+            message.includes("invest inr")
         )
     ) {
-        score += 30;
+        score += 25;
 
         detectedReasons.push(
             "Requests money or a financial deposit for the investment."
@@ -303,13 +435,36 @@ function analyzeMessage() {
         message.includes("huge profit") ||
         message.includes("high profit")
     ) {
-        score += 20;
+        score += 15;
 
         detectedReasons.push(
             "Promises unusually high or guaranteed investment returns."
         );
     }
 
+    // Impersonation + Sensitive Request
+    if (
+        (
+            message.includes("i am from your bank") ||
+            message.includes("bank officer") ||
+            message.includes("government officer") ||
+            message.includes("police officer") ||
+            message.includes("customs officer")
+        ) &&
+        (
+            message.includes("otp") ||
+            message.includes("password") ||
+            message.includes("pin") ||
+            message.includes("send money") ||
+            message.includes("upi")
+        )
+    ) {
+        score += 30;
+
+        detectedReasons.push(
+            "Combines impersonation with a request for sensitive information or money."
+        );
+    }
 
     // Impersonation
     if (
@@ -319,7 +474,7 @@ function analyzeMessage() {
         message.includes("police officer") ||
         message.includes("customs officer")
     ) {
-        score += 25;
+        score += 20;
 
         detectedReasons.push(
             "May be impersonating an official or trusted organization."
@@ -327,8 +482,9 @@ function analyzeMessage() {
     }
 
 
-    // Maximum score
+    // Balanced risk score
     score = Math.min(score, 100);
+    score = Math.round(score);
 
     const type = detectScamType(message);
 
@@ -378,21 +534,37 @@ function showResult(score, detectedReasons, type) {
     }
 
 
-    if (score >= 70) {
+    if (score >= 90) {
 
-        riskBadge.textContent = "HIGH RISK";
+        riskBadge.textContent = "EXTREMELY DANGEROUS";
+        riskBadge.style.background = "#8e0000";
+
+        adviceText.textContent =
+            "Do not click links, send money, or share OTPs, passwords, or personal information. Stop the interaction and verify through an official source.";
+
+    } else if (score >= 70) {
+
+        riskBadge.textContent = "DANGEROUS";
         riskBadge.style.background = "#e74c3c";
 
         adviceText.textContent =
-            "Do not click links, send money, or share OTPs or personal information. Verify the message using an official source.";
+            "Do not click links, send money, or share sensitive information. Verify the sender through an official source.";
 
-    } else if (score >= 30) {
+    } else if (score >= 41) {
 
-        riskBadge.textContent = "MEDIUM RISK";
+        riskBadge.textContent = "SUSPICIOUS";
         riskBadge.style.background = "#f39c12";
 
         adviceText.textContent =
-            "Be careful. Do not provide sensitive information or send money until you independently verify the sender and the request.";
+            "Be careful. Do not provide sensitive information or send money until you independently verify the sender and request.";
+
+    } else if (score >= 21) {
+
+        riskBadge.textContent = "SLIGHTLY SUSPICIOUS";
+        riskBadge.style.background = "#f1c40f";
+
+        adviceText.textContent =
+            "Be cautious and verify the message before taking any action.";
 
     } else {
 
@@ -406,6 +578,25 @@ function showResult(score, detectedReasons, type) {
 
 
 function detectScamType(message) {
+
+    // High-Risk Investment Scam
+    if (
+        (
+            message.includes("investment") ||
+            message.includes("invest") ||
+            message.includes("crypto") ||
+            message.includes("trading")
+        ) &&
+        (
+            message.includes("guaranteed profit") ||
+            message.includes("guaranteed return") ||
+            message.includes("double your money") ||
+            message.includes("send money") ||
+            message.includes("deposit")
+        )
+    ) {
+        return "Investment Scam";
+    }
 
     // Phishing Scam
     if (
@@ -435,6 +626,47 @@ function detectScamType(message) {
         return "Investment Scam";
     }
 
+    // KYC Scam
+    if (
+        message.includes("kyc") ||
+        message.includes("kyc verification") ||
+        message.includes("update your kyc")
+    ) {
+        return "KYC Scam";
+    }
+
+    // Refund Fee Scam
+    if (
+        (
+            message.includes("refund") ||
+            message.includes("reward")
+        ) &&
+        (
+            message.includes("processing fee") ||
+            message.includes("claim fee") ||
+            message.includes("pay a fee") ||
+            message.includes("small fee")
+        )
+    ) {
+        return "Refund / Fee Scam";
+    }
+
+    // Pay to Receive Scam
+    if (
+        (
+            message.includes("send money") ||
+            message.includes("send ₹") ||
+            message.includes("pay")
+        ) &&
+        (
+            message.includes("receive money") ||
+            message.includes("get money") ||
+            message.includes("receive your money") ||
+            message.includes("in your account")
+        )
+    ) {
+        return "Pay to Receive Scam";
+    }
 
     // Banking / OTP
     if (
@@ -488,5 +720,5 @@ function detectScamType(message) {
     }
 
 
-    return "Suspicious Message";
+    return "No Scam Detected";
 }
