@@ -22,7 +22,6 @@ function analyzeMessage() {
     }
 
     let score = 0;
-    let riskFactors = 0;
     let detectedReasons = [];
 
     // Common KYC Scam Phrases
@@ -243,6 +242,7 @@ function analyzeMessage() {
         message.includes("bit.ly") ||
         message.includes("tinyurl") ||
         message.includes("t.co") ||
+        message.includes("t.jio") ||
         message.includes(".xyz") ||
         message.includes(".top") ||
         message.includes(".click") ||
@@ -253,10 +253,14 @@ function analyzeMessage() {
         message.includes("https://");
     
     const hasTrustedLink =
-        message.includes("google.com") ||
-        message.includes("microsoft.com") ||
-        message.includes("apple.com") ||
-        message.includes("amazon.com");
+        message.includes("https://google.com") ||
+        message.includes("https://www.google.com") ||
+        message.includes("https://microsoft.com") ||
+        message.includes("https://www.microsoft.com") ||
+        message.includes("https://apple.com") ||
+        message.includes("https://www.apple.com") ||
+        message.includes("https://amazon.com") ||
+        message.includes("https://www.amazon.com");
 
     if (hasShortenedLink) {
 
@@ -630,6 +634,23 @@ function showResult(score, detectedReasons, type) {
 
     riskBar.style.width = score + "%";
 
+    if (score >= 90) {
+        riskBar.style.background = "linear-gradient(90deg, #8e0000, #e74c3c)";
+        riskBar.style.boxShadow = "0 0 14px rgba(231, 76, 60, 0.5)";
+    } else if (score >= 70) {
+        riskBar.style.background = "linear-gradient(90deg, #e74c3c, #ff6b5a)";
+        riskBar.style.boxShadow = "0 0 14px rgba(231, 76, 60, 0.45)";
+    } else if (score >= 41) {
+        riskBar.style.background = "linear-gradient(90deg, #f39c12, #f7c04a)";
+        riskBar.style.boxShadow = "0 0 14px rgba(243, 156, 18, 0.45)";
+    } else if (score >= 21) {
+        riskBar.style.background = "linear-gradient(90deg, #f1c40f, #ffe45c)";
+        riskBar.style.boxShadow = "0 0 14px rgba(241, 196, 15, 0.4)";
+    } else {
+        riskBar.style.background = "linear-gradient(90deg, #27ae60, #55d98a)";
+        riskBar.style.boxShadow = "0 0 14px rgba(39, 174, 96, 0.4)";
+    }
+
     reasons.innerHTML = "";
 
 
@@ -644,7 +665,7 @@ function showResult(score, detectedReasons, type) {
 
     } else {
 
-        detectedReasons.forEach(function(reason) {
+        [...new Set(detectedReasons)].forEach(function(reason) {
 
             const li = document.createElement("li");
 
@@ -721,9 +742,12 @@ function detectScamType(message) {
 
     // Phishing Scam
     if (
+        message.includes("http://") ||
+        message.includes("https://") ||
         message.includes("bit.ly") ||
         message.includes("tinyurl") ||
         message.includes("t.co") ||
+        message.includes("t.jio") ||
         message.includes(".xyz") ||
         message.includes(".top") ||
         message.includes(".click") ||
