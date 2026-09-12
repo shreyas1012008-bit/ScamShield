@@ -466,6 +466,127 @@ function analyzeMessage() {
         );
     }
 
+    // Delivery / Customs Scam
+    if (
+        (
+            message.includes("parcel") ||
+            message.includes("package") ||
+            message.includes("delivery") ||
+            message.includes("courier") ||
+            message.includes("customs")
+        ) &&
+        (
+            message.includes("pay") ||
+            message.includes("payment") ||
+            message.includes("fee") ||
+            message.includes("₹") ||
+            message.includes("rs")
+        )
+    ) {
+        score += 20;
+
+        detectedReasons.push(
+            "Mentions a delivery or customs issue and requests payment."
+        );
+    }
+
+    // Delivery / Customs + Urgency
+    if (
+        (
+            message.includes("parcel") ||
+            message.includes("package") ||
+            message.includes("delivery") ||
+            message.includes("courier") ||
+            message.includes("customs")
+        ) &&
+        (
+            message.includes("urgent") ||
+            message.includes("immediately") ||
+            message.includes("act now") ||
+            message.includes("right now") ||
+            message.includes("within 24 hours")
+        )
+    ) {
+        score += 10;
+
+        detectedReasons.push(
+            "Creates urgency or pressure regarding a delivery or customs issue."
+        );
+    }
+
+    // Delivery / Customs Impersonation
+    if (
+        (
+            message.includes("parcel") ||
+            message.includes("package") ||
+            message.includes("delivery") ||
+            message.includes("courier") ||
+            message.includes("customs")
+        ) &&
+        (
+            message.includes("customs officer") ||
+            message.includes("customs department") ||
+            message.includes("delivery officer") ||
+            message.includes("courier officer") ||
+            message.includes("official")
+        )
+    ) {
+        score += 20;
+
+        detectedReasons.push(
+            "May be impersonating a delivery, customs, or official organization."
+        );
+    }
+
+    // Government / Legal Notice Scam
+    if (
+        (
+            message.includes("aadhaar") ||
+            message.includes("pan card") ||
+            message.includes("government") ||
+            message.includes("legal notice") ||
+            message.includes("legal action") ||
+            message.includes("penalty")
+        ) &&
+        (
+            message.includes("pay") ||
+            message.includes("payment") ||
+            message.includes("fee") ||
+            message.includes("fine") ||
+            message.includes("₹")
+        )
+    ) {
+        score += 25;
+
+        detectedReasons.push(
+            "Uses a government or legal-related claim to request money."
+        );
+    }
+
+    // Government / Legal + Threat
+    if (
+        (
+            message.includes("aadhaar") ||
+            message.includes("government") ||
+            message.includes("legal notice") ||
+            message.includes("legal action") ||
+            message.includes("penalty")
+        ) &&
+        (
+            message.includes("blocked") ||
+            message.includes("suspended") ||
+            message.includes("arrest") ||
+            message.includes("police") ||
+            message.includes("will be closed")
+        )
+    ) {
+        score += 20;
+
+        detectedReasons.push(
+            "Uses threats or fear involving government or legal consequences."
+        );
+    }
+
     // Impersonation
     if (
         message.includes("i am from your bank") ||
@@ -624,6 +745,38 @@ function detectScamType(message) {
         message.includes("guaranteed profit")
     ) {
         return "Investment Scam";
+    }
+
+    // Delivery / Customs Scam
+    if (
+        message.includes("parcel") ||
+        message.includes("package") ||
+        message.includes("delivery") ||
+        message.includes("courier") ||
+        message.includes("customs")
+    ) {
+        return "Delivery / Customs Scam";
+    }
+
+    // Government / Legal Scam
+    if (
+        (
+            message.includes("aadhaar") ||
+            message.includes("pan card") ||
+            message.includes("government") ||
+            message.includes("legal notice") ||
+            message.includes("legal action") ||
+            message.includes("penalty")
+        ) &&
+        (
+            message.includes("pay") ||
+            message.includes("payment") ||
+            message.includes("fee") ||
+            message.includes("fine") ||
+            message.includes("₹")
+        )
+    ) {
+        return "Government / Legal Scam";
     }
 
     // KYC Scam
