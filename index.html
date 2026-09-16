@@ -51,9 +51,15 @@
                     🔒 Your message is analyzed securely. Never share passwords or real OTPs.
                 </div>
 
-                <button id="analyzeBtn">
-                    🔍 Analyze Now
-                </button>
+                <div class="button-group">
+                    <button id="analyzeBtn">
+                        🔍 Analyze Now
+                    </button>
+
+                    <button id="clearBtn">
+                        ✕ Clear
+                    </button>
+                </div>
 
             </section>
 
@@ -81,6 +87,23 @@
 
                 <div class="progress">
                     <div id="riskBar"></div>
+                </div>
+
+                <div class="risk-scale">
+                    <span>0</span>
+                    <span>20</span>
+                    <span>40</span>
+                    <span>70</span>
+                    <span>90</span>
+                    <span>100</span>
+                </div>
+
+                <div class="risk-labels">
+                    <span>LOW RISK</span>
+                    <span>SLIGHTLY SUSPICIOUS</span>
+                    <span>SUSPICIOUS</span>
+                    <span>DANGEROUS</span>
+                    <span>EXTREME</span>
                 </div>
 
                 <h3>Why?</h3>

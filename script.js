@@ -1,5 +1,6 @@
 const analyzeBtn = document.getElementById("analyzeBtn");
 const messageInput = document.getElementById("message");
+const clearBtn = document.getElementById("clearBtn");
 
 const result = document.getElementById("result");
 const riskBadge = document.getElementById("riskBadge");
@@ -11,6 +12,22 @@ const scamType = document.getElementById("scamType");
 const confidence = document.getElementById("confidence");
 
 analyzeBtn.addEventListener("click", analyzeMessage);
+clearBtn.addEventListener("click", clearAnalysis);
+
+function clearAnalysis() {
+    messageInput.value = "";
+    result.classList.add("hidden");
+
+    riskScore.textContent = "0/100";
+    scamType.textContent = "Unknown";
+    confidence.textContent = "0%";
+
+    riskBar.style.width = "0%";
+    riskBar.style.background = "linear-gradient(90deg, #4f6df5, #6c8cff)";
+    riskBar.style.boxShadow = "0 0 12px rgba(108, 140, 255, 0.45)";
+
+    reasons.innerHTML = "";
+}
 
 function analyzeMessage() {
 
@@ -243,14 +260,165 @@ function analyzeMessage() {
         message.includes("tinyurl") ||
         message.includes("t.co") ||
         message.includes("t.jio") ||
+        message.includes("is.gd") ||
+        message.includes("ow.ly") ||
         message.includes(".xyz") ||
         message.includes(".top") ||
         message.includes(".click") ||
         message.includes(".link");
 
     const hasNormalLink =
-        message.includes("http://") ||
-        message.includes("https://");
+        /https?:\/\/[^\s]+/i.test(message) ||
+        /www\.[^\s]+/i.test(message);
+
+    const hasSuspiciousUrlWords =
+        message.includes("/verify") ||
+        message.includes("/login") ||
+        message.includes("/account") ||
+        message.includes("/update") ||
+        message.includes("/kyc") ||
+        message.includes("/claim") ||
+        message.includes("/reward") ||
+        message.includes("/payment") ||
+        message.includes("/secure") ||
+        message.includes("/wallet");
+
+    const hasEmail =
+        /[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/i.test(message);
+
+    const hasSuspiciousEmail =
+        /@[a-z0-9.-]+\.(xyz|top|click|link|online|site|support|info)\b/i.test(message);
+
+    const hasPhoneNumber =
+        /(?:\+91[\s-]?)?[6-9]\d{9}\b/.test(message);
+
+    const hasCallPressure =
+        message.includes("call now") ||
+        message.includes("call immediately") ||
+        message.includes("contact now") ||
+        message.includes("call this number") ||
+        message.includes("contact this number");
+
+    const hasPaymentPressure =
+        message.includes("scan qr") ||
+        message.includes("scan this qr") ||
+        message.includes("scan the qr") ||
+        message.includes("pay via upi") ||
+        message.includes("send via upi") ||
+        message.includes("upi payment") ||
+        message.includes("make the payment") ||
+        message.includes("payment link");
+
+    const hasQrRequest =
+        message.includes("qr code") ||
+        message.includes("qr scan") ||
+        message.includes("scan qr") ||
+        message.includes("scan this qr");
+
+    const hasMoneyAmount =
+        /(?:₹|rs\.?|inr)\s?\d{1,3}(?:,\d{2,3})*(?:\.\d+)?\b/i.test(message);
+
+    if (
+        hasMoneyAmount &&
+        (
+            message.includes("won") ||
+            message.includes("prize") ||
+            message.includes("reward") ||
+            message.includes("refund") ||
+            message.includes("guaranteed") ||
+            message.includes("pay") ||
+            message.includes("send money") ||
+            message.includes("deposit")
+        )
+    ) {
+
+        score += 10;
+
+        detectedReasons.push(
+            "Mentions a specific money amount together with a financial or reward-related request."
+        );
+    }
+
+    const hasFakeSupportRequest =
+        message.includes("customer care") ||
+        message.includes("customer support") ||
+        message.includes("support team") ||
+        message.includes("call support") ||
+        message.includes("contact support") ||
+        message.includes("speak to our representative") ||
+        message.includes("contact our representative");
+
+    const hasAuthorityClaim =
+        message.includes("from the bank") ||
+        message.includes("from your bank") ||
+        message.includes("from the government") ||
+        message.includes("from cyber crime") ||
+        message.includes("from cybercrime") ||
+        message.includes("from income tax") ||
+        message.includes("from the income tax department") ||
+        message.includes("from the customs department") ||
+        message.includes("official notice");
+
+    if (
+        hasAuthorityClaim &&
+        (
+            message.includes("otp") ||
+            message.includes("password") ||
+            message.includes("pin") ||
+            message.includes("upi") ||
+            message.includes("send money") ||
+            message.includes("pay") ||
+            message.includes("payment") ||
+            message.includes("bank account") ||
+            message.includes("personal details")
+        )
+    ) {
+
+        score += 25;
+
+        detectedReasons.push(
+            "Claims to represent an authority or organization while requesting sensitive information or money."
+        );
+    }
+
+    if (
+        hasFakeSupportRequest &&
+        (hasPhoneNumber || hasNormalLink)
+    ) {
+
+        score += 15;
+
+        detectedReasons.push(
+            "Directs the recipient to customer support through a phone number or link that should be independently verified."
+        );
+    }
+
+    if (hasQrRequest && (hasPaymentPressure || message.includes("pay") || message.includes("payment"))) {
+
+        score += 15;
+
+        detectedReasons.push(
+            "Requests scanning a QR code in connection with a payment."
+        );
+    }
+
+    if (hasPaymentPressure) {
+
+        score += 15;
+
+        detectedReasons.push(
+            "Uses specific payment or UPI instructions that may pressure the recipient into sending money."
+        );
+    }
+
+    if (hasPhoneNumber && hasCallPressure) {
+
+        score += 15;
+
+        detectedReasons.push(
+            "Provides a phone number together with pressure to call or make contact."
+        );
+    }
     
     const hasTrustedLink =
         message.includes("https://google.com") ||
@@ -270,12 +438,29 @@ function analyzeMessage() {
             "Contains a suspicious or shortened link that may lead to a fraudulent website."
         );
 
+    } else if (hasNormalLink && hasSuspiciousUrlWords && !hasTrustedLink) {
+
+        score += 20;
+
+        detectedReasons.push(
+            "The link contains words commonly associated with account verification, payments, or reward scams."
+        );
+
     } else if (hasNormalLink && !hasTrustedLink) {
 
         score += 10;
 
         detectedReasons.push(
             "Contains a link. Verify the website before opening it."
+        );
+    }
+
+    if (hasSuspiciousEmail) {
+
+        score += 20;
+
+        detectedReasons.push(
+            "Contains an email address using a domain commonly associated with suspicious messages."
         );
     }
 
@@ -391,7 +576,6 @@ function analyzeMessage() {
         message.includes("crypto") ||
         message.includes("trading") ||
         message.includes("profit") ||
-        message.includes("return") ||
         message.includes("double your money") ||
         message.includes("guaranteed return") ||
         message.includes("guaranteed profit") ||
@@ -740,23 +924,6 @@ function detectScamType(message) {
         return "Investment Scam";
     }
 
-    // Phishing Scam
-    if (
-        message.includes("http://") ||
-        message.includes("https://") ||
-        message.includes("bit.ly") ||
-        message.includes("tinyurl") ||
-        message.includes("t.co") ||
-        message.includes("t.jio") ||
-        message.includes(".xyz") ||
-        message.includes(".top") ||
-        message.includes(".click") ||
-        message.includes(".link")
-    ) {
-        return "Phishing Scam";
-    }
-
-
     // Investment
     if (
         message.includes("investment") ||
@@ -896,6 +1063,21 @@ function detectScamType(message) {
         return "Impersonation Scam";
     }
 
+    // Phishing Scam
+    if (
+        message.includes("http://") ||
+        message.includes("https://") ||
+        message.includes("bit.ly") ||
+        message.includes("tinyurl") ||
+        message.includes("t.co") ||
+        message.includes("t.jio") ||
+        message.includes(".xyz") ||
+        message.includes(".top") ||
+        message.includes(".click") ||
+        message.includes(".link")
+    ) {
+        return "Phishing Scam";
+    }
 
     return "No Scam Detected";
 }
