@@ -57,28 +57,73 @@ function analyzeMessage() {
     }
 
     // Account Verification
-    if (
+    const hasAccountVerification =
         message.includes("verify your account") ||
         message.includes("verify account") ||
-        message.includes("account details")
-    ) {
+        message.includes("account details") ||
+        message.includes("confirm your account") ||
+        message.includes("confirm account") ||
+        message.includes("restore your account") ||
+        message.includes("reactivate your account") ||
+        message.includes("unlock your account");
+
+    if (hasAccountVerification) {
         score += 10;
+
         detectedReasons.push(
             "Requests account verification or account details."
         );
     }
 
+    const hasAccountThreat =
+        message.includes("account blocked") ||
+        message.includes("account suspended") ||
+        message.includes("account will be closed") ||
+        message.includes("account will be locked") ||
+        message.includes("account has been locked") ||
+        message.includes("account access will be removed");
+
+    if (hasAccountVerification && hasAccountThreat) {
+        score += 15;
+
+        detectedReasons.push(
+            "Combines account verification with a threat of losing account access."
+        );
+    }
+
     // OTP / Password
-    if (
+    const requestsSensitiveInfo =
         message.includes("otp") ||
         message.includes("one time password") ||
         message.includes("verification code") ||
         message.includes("password") ||
-        message.includes("pin")
-    ) {
+        message.includes("pin");
+
+    if (requestsSensitiveInfo) {
         score += 25;
+
         detectedReasons.push(
             "Requests sensitive authentication information."
+        );
+    }
+
+    const hasSensitiveAction =
+        message.includes("share your otp") ||
+        message.includes("send your otp") ||
+        message.includes("tell me your otp") ||
+        message.includes("provide your otp") ||
+        message.includes("share the otp") ||
+        message.includes("enter your otp") ||
+        message.includes("share password") ||
+        message.includes("send password") ||
+        message.includes("share your pin") ||
+        message.includes("send your pin");
+
+    if (hasSensitiveAction) {
+        score += 20;
+
+        detectedReasons.push(
+            "Explicitly asks the recipient to share an OTP, password, or PIN."
         );
     }
 
@@ -326,16 +371,21 @@ function analyzeMessage() {
             message.includes("reward") ||
             message.includes("refund") ||
             message.includes("guaranteed") ||
-            message.includes("pay") ||
             message.includes("send money") ||
-            message.includes("deposit")
+            message.includes("deposit") ||
+            message.includes("processing fee") ||
+            message.includes("claim fee") ||
+            message.includes("registration fee") ||
+            message.includes("urgent") ||
+            message.includes("immediately") ||
+            message.includes("claim")
         )
     ) {
 
         score += 10;
 
         detectedReasons.push(
-            "Mentions a specific money amount together with a financial or reward-related request."
+            "Mentions a specific money amount together with a potentially suspicious request."
         );
     }
 
@@ -393,12 +443,55 @@ function analyzeMessage() {
         );
     }
 
+    // Fake Customer Support + Sensitive Request
+    if (
+        hasFakeSupportRequest &&
+        (
+            message.includes("otp") ||
+            message.includes("password") ||
+            message.includes("pin") ||
+            message.includes("payment") ||
+            message.includes("pay") ||
+            message.includes("upi") ||
+            message.includes("bank account")
+        )
+    ) {
+
+        score += 20;
+
+        detectedReasons.push(
+            "Impersonates customer support while requesting sensitive information or payment."
+        );
+    }
+
     if (hasQrRequest && (hasPaymentPressure || message.includes("pay") || message.includes("payment"))) {
 
         score += 15;
 
         detectedReasons.push(
             "Requests scanning a QR code in connection with a payment."
+        );
+    }
+
+    // QR Code + Suspicious Request
+    if (
+        hasQrRequest &&
+        (
+            message.includes("verify") ||
+            message.includes("account") ||
+            message.includes("kyc") ||
+            message.includes("reward") ||
+            message.includes("prize") ||
+            message.includes("refund") ||
+            message.includes("claim") ||
+            message.includes("receive")
+        )
+    ) {
+
+        score += 15;
+
+        detectedReasons.push(
+            "Requests scanning a QR code in connection with an account, verification, reward, or refund request."
         );
     }
 
@@ -417,6 +510,29 @@ function analyzeMessage() {
 
         detectedReasons.push(
             "Provides a phone number together with pressure to call or make contact."
+        );
+    }
+
+    // Phone Number + Sensitive Request
+    if (
+        hasPhoneNumber &&
+        (
+            message.includes("otp") ||
+            message.includes("password") ||
+            message.includes("pin") ||
+            message.includes("payment") ||
+            message.includes("pay") ||
+            message.includes("upi") ||
+            message.includes("bank account") ||
+            message.includes("account blocked") ||
+            message.includes("account suspended")
+        )
+    ) {
+
+        score += 15;
+
+        detectedReasons.push(
+            "Provides a phone number together with a request for sensitive information, account access, or payment."
         );
     }
     
@@ -464,6 +580,52 @@ function analyzeMessage() {
         );
     }
 
+    // Email + Scam Request
+    if (
+        hasEmail &&
+        (
+            message.includes("verify") ||
+            message.includes("login") ||
+            message.includes("account blocked") ||
+            message.includes("account suspended") ||
+            message.includes("payment") ||
+            message.includes("pay") ||
+            message.includes("otp") ||
+            message.includes("password") ||
+            message.includes("claim")
+        )
+    ) {
+
+        score += 10;
+
+        detectedReasons.push(
+            "Contains an email address together with a request involving account access, payment, or sensitive information."
+        );
+    }
+
+    // Link + Sensitive Action
+    if (
+        hasNormalLink &&
+        (
+            message.includes("verify") ||
+            message.includes("login") ||
+            message.includes("sign in") ||
+            message.includes("password") ||
+            message.includes("otp") ||
+            message.includes("pin") ||
+            message.includes("payment") ||
+            message.includes("pay now") ||
+            message.includes("account blocked") ||
+            message.includes("account suspended")
+        )
+    ) {
+
+        score += 20;
+
+        detectedReasons.push(
+            "Combines a link with a request to verify an account, provide sensitive information, or make a payment."
+        );
+    }
 
     // Link + urgency
     if (
@@ -481,6 +643,55 @@ function analyzeMessage() {
 
         detectedReasons.push(
             "Combines a suspicious link with urgency or pressure."
+        );
+    }
+
+    // Messaging Platform + Scam Request
+    if (
+        (
+            message.includes("telegram") ||
+            message.includes("whatsapp")
+        ) &&
+        (
+            message.includes("pay") ||
+            message.includes("payment") ||
+            message.includes("send money") ||
+            message.includes("otp") ||
+            message.includes("verify") ||
+            message.includes("urgent") ||
+            message.includes("claim")
+        )
+    ) {
+
+        score += 15;
+
+        detectedReasons.push(
+            "Directs the recipient to a messaging platform while making a payment, verification, or urgent request."
+        );
+    }
+
+    // Gift Card / Voucher Scam
+    if (
+        (
+            message.includes("gift card") ||
+            message.includes("gift voucher") ||
+            message.includes("voucher") ||
+            message.includes("itunes card") ||
+            message.includes("google play card")
+        ) &&
+        (
+            message.includes("buy") ||
+            message.includes("send") ||
+            message.includes("pay") ||
+            message.includes("code") ||
+            message.includes("payment")
+        )
+    ) {
+
+        score += 25;
+
+        detectedReasons.push(
+            "Requests a gift card, voucher, or gift-card code as a form of payment."
         );
     }
 
@@ -675,6 +886,37 @@ function analyzeMessage() {
 
         detectedReasons.push(
             "Mentions a delivery or customs issue and requests payment."
+        );
+    }
+
+    // Delivery Address Scam
+    if (
+        (
+            message.includes("parcel") ||
+            message.includes("package") ||
+            message.includes("delivery") ||
+            message.includes("courier")
+        ) &&
+        (
+            message.includes("update address") ||
+            message.includes("confirm address") ||
+            message.includes("verify address") ||
+            message.includes("change address") ||
+            message.includes("delivery address")
+        ) &&
+        (
+            message.includes("pay") ||
+            message.includes("fee") ||
+            message.includes("payment") ||
+            message.includes("link") ||
+            message.includes("click")
+        )
+    ) {
+
+        score += 20;
+
+        detectedReasons.push(
+            "Requests an address update or confirmation together with a payment or link."
         );
     }
 
@@ -979,22 +1221,6 @@ function detectScamType(message) {
         return "KYC Scam";
     }
 
-    // Refund Fee Scam
-    if (
-        (
-            message.includes("refund") ||
-            message.includes("reward")
-        ) &&
-        (
-            message.includes("processing fee") ||
-            message.includes("claim fee") ||
-            message.includes("pay a fee") ||
-            message.includes("small fee")
-        )
-    ) {
-        return "Refund / Fee Scam";
-    }
-
     // Pay to Receive Scam
     if (
         (
@@ -1012,46 +1238,88 @@ function detectScamType(message) {
         return "Pay to Receive Scam";
     }
 
-    // Banking / OTP
+    // QR Code Scam
+    if (
+        message.includes("qr code") ||
+        message.includes("qr scan") ||
+        message.includes("scan qr") ||
+        message.includes("scan this qr")
+    ) {
+        return "QR Code Scam";
+    }
+
+    // Banking / OTP Scam
     if (
         message.includes("otp") ||
         message.includes("one time password") ||
         message.includes("verification code") ||
         message.includes("password") ||
-        message.includes("pin") ||
-        message.includes("upi") ||
-        message.includes("bank account")
+        message.includes("pin")
     ) {
         return "Banking / OTP Scam";
     }
 
-
-    // Job
+    // Banking / Payment Scam
     if (
-        message.includes("job") ||
-        message.includes("work from home") ||
-        message.includes("salary") ||
-        message.includes("registration fee") ||
-        message.includes("earn money")
+        message.includes("upi") ||
+        message.includes("bank account") ||
+        message.includes("bank") ||
+        message.includes("account blocked") ||
+        message.includes("account suspended")
+    ) {
+        return "Banking / Payment Scam";
+    }
+
+    // Job Scam
+    if (
+        (
+            message.includes("job") ||
+            message.includes("job offer") ||
+            message.includes("work from home")
+        ) &&
+        (
+            message.includes("registration fee") ||
+            message.includes("fee") ||
+            message.includes("pay") ||
+            message.includes("easy money") ||
+            message.includes("earn money")
+        )
     ) {
         return "Job Scam";
     }
 
-
     // Prize
     if (
-        message.includes("you won") ||
-        message.includes("you have won") ||
-        message.includes("winner") ||
-        message.includes("lottery") ||
-        message.includes("prize") ||
-        message.includes("reward") ||
-        message.includes("processing fee") ||
-        message.includes("claim fee")
+        (
+            message.includes("you won") ||
+            message.includes("you have won") ||
+            message.includes("winner") ||
+            message.includes("lottery") ||
+            message.includes("prize") ||
+            message.includes("reward") ||
+            message.includes("processing fee") ||
+            message.includes("claim fee")
+        ) &&
+        !message.includes("refund")
     ) {
         return "Prize / Lottery Scam";
     }
 
+    // Refund Fee Scam
+    if (
+        (
+            message.includes("refund") ||
+            message.includes("reward")
+        ) &&
+        (
+            message.includes("processing fee") ||
+            message.includes("claim fee") ||
+            message.includes("pay a fee") ||
+            message.includes("small fee")
+        )
+    ) {
+        return "Refund / Fee Scam";
+    }
 
     // Impersonation
     if (
