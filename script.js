@@ -31,10 +31,15 @@ function clearAnalysis() {
 
 function analyzeMessage() {
 
+    analyzeBtn.textContent = "🔄 Analyzing...";
+    analyzeBtn.disabled = true;
+
     const message = messageInput.value.trim().toLowerCase();
 
     if (message === "") {
         alert("Please paste a message first.");
+        analyzeBtn.textContent = "🔍 Analyze Now";
+        analyzeBtn.disabled = false;
         return;
     }
 
@@ -1040,6 +1045,9 @@ function analyzeMessage() {
     const type = detectScamType(message);
 
     showResult(score, detectedReasons, type);
+
+    analyzeBtn.textContent = "🔍 Analyze Now";
+    analyzeBtn.disabled = false;
 }
 
 
@@ -1047,7 +1055,21 @@ function showResult(score, detectedReasons, type) {
 
     result.classList.remove("hidden");
 
+    result.style.animation = "none";
+    result.offsetHeight;
+    result.style.animation = "resultSlideIn 0.45s ease";
+
     riskScore.textContent = score + "/100";
+
+    if (score >= 70) {
+        riskScore.style.color = "#e74c3c";
+    } else if (score >= 41) {
+        riskScore.style.color = "#f39c12";
+    } else if (score >= 21) {
+        riskScore.style.color = "#f1c40f";
+    } else {
+        riskScore.style.color = "#27ae60";
+    }
 
     scamType.textContent = type;
 
@@ -1106,6 +1128,7 @@ function showResult(score, detectedReasons, type) {
 
         riskBadge.textContent = "EXTREMELY DANGEROUS";
         riskBadge.style.background = "#8e0000";
+        riskBadge.style.boxShadow = "0 0 16px rgba(231, 76, 60, 0.25)";
 
         adviceText.textContent =
             "Do not click links, send money, or share OTPs, passwords, or personal information. Stop the interaction and verify through an official source.";
@@ -1114,6 +1137,7 @@ function showResult(score, detectedReasons, type) {
 
         riskBadge.textContent = "DANGEROUS";
         riskBadge.style.background = "#e74c3c";
+        riskBadge.style.boxShadow = "0 0 16px rgba(231, 76, 60, 0.2)";
 
         adviceText.textContent =
             "Do not click links, send money, or share sensitive information. Verify the sender through an official source.";
@@ -1122,6 +1146,7 @@ function showResult(score, detectedReasons, type) {
 
         riskBadge.textContent = "SUSPICIOUS";
         riskBadge.style.background = "#f39c12";
+        riskBadge.style.boxShadow = "0 0 16px rgba(243, 156, 18, 0.2)";
 
         adviceText.textContent =
             "Be careful. Do not provide sensitive information or send money until you independently verify the sender and request.";
@@ -1130,6 +1155,7 @@ function showResult(score, detectedReasons, type) {
 
         riskBadge.textContent = "SLIGHTLY SUSPICIOUS";
         riskBadge.style.background = "#f1c40f";
+        riskBadge.style.boxShadow = "0 0 16px rgba(241, 196, 15, 0.18)";
 
         adviceText.textContent =
             "Be cautious and verify the message before taking any action.";
@@ -1138,6 +1164,7 @@ function showResult(score, detectedReasons, type) {
 
         riskBadge.textContent = "LOW RISK";
         riskBadge.style.background = "#27ae60";
+        riskBadge.style.boxShadow = "0 0 16px rgba(39, 174, 96, 0.18)";
 
         adviceText.textContent =
             "No major warning signs were detected, but always verify unexpected requests before taking action.";
