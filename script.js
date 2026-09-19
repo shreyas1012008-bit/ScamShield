@@ -2,6 +2,9 @@ const analyzeBtn = document.getElementById("analyzeBtn");
 const messageInput = document.getElementById("message");
 const clearBtn = document.getElementById("clearBtn");
 
+const clearHistoryBtn = document.getElementById("clearHistoryBtn");
+const historyList = document.getElementById("historyList");
+
 const result = document.getElementById("result");
 const riskBadge = document.getElementById("riskBadge");
 const riskScore = document.getElementById("riskScore");
@@ -13,6 +16,7 @@ const confidence = document.getElementById("confidence");
 
 analyzeBtn.addEventListener("click", analyzeMessage);
 clearBtn.addEventListener("click", clearAnalysis);
+clearHistoryBtn.addEventListener("click", clearHistory);
 
 function clearAnalysis() {
     messageInput.value = "";
@@ -27,6 +31,77 @@ function clearAnalysis() {
     riskBar.style.boxShadow = "0 0 12px rgba(108, 140, 255, 0.45)";
 
     reasons.innerHTML = "";
+}
+
+function clearHistory() {
+    localStorage.removeItem("scamHistory");
+    localStorage.removeItem("selectedScan");
+
+    historyList.innerHTML =
+        '<p class="empty-history">No scans yet.</p>';
+}
+
+function saveToHistory(
+    message,
+    score,
+    type,
+    detectedReasons,
+    confidence,
+    advice
+) {
+    const scan = {
+        message: message,
+        score: score,
+        type: type,
+        riskLevel:
+            score >= 90 ? "EXTREMELY DANGEROUS" :
+            score >= 70 ? "DANGEROUS" :
+            score >= 41 ? "SUSPICIOUS" :
+            score >= 21 ? "SLIGHTLY SUSPICIOUS" :
+            "LOW RISK",
+        reasons: detectedReasons,
+        confidence: confidence,
+        advice: advice,
+        time: new Date().toLocaleTimeString()
+    };
+
+    const history = JSON.parse(localStorage.getItem("scamHistory")) || [];
+
+    history.unshift(scan);
+
+    localStorage.setItem("scamHistory", JSON.stringify(history));
+}
+
+function renderHistory() {
+    const history = JSON.parse(localStorage.getItem("scamHistory")) || [];
+
+    if (history.length === 0) {
+        historyList.innerHTML =
+            '<p class="empty-history">No scans yet.</p>';
+        return;
+    }
+
+    historyList.innerHTML = "";
+
+    history.forEach(scan => {
+        const item = document.createElement("div");
+        item.className = "history-item";
+
+        item.style.cursor = "pointer";
+
+        item.addEventListener("click", () => {
+            localStorage.setItem("selectedScan", JSON.stringify(scan));
+            window.location.href = "history.html";
+        });
+
+        item.innerHTML = `
+            <strong>${scan.type}</strong>
+            <span>${scan.score}/100</span>
+            <small>${scan.time}</small>
+        `;
+
+        historyList.appendChild(item);
+    });
 }
 
 function analyzeMessage() {
@@ -1046,6 +1121,17 @@ function analyzeMessage() {
 
     showResult(score, detectedReasons, type);
 
+    saveToHistory(
+        message,
+        score,
+        type,
+        detectedReasons,
+        confidence.textContent,
+        adviceText.textContent
+    );
+
+    renderHistory();
+
     analyzeBtn.textContent = "🔍 Analyze Now";
     analyzeBtn.disabled = false;
 }
@@ -1173,6 +1259,10 @@ function showResult(score, detectedReasons, type) {
 
 
 function detectScamType(message) {
+
+    if (message.trim() === "") {
+        return "No Scam Detected";
+    }
 
     // High-Risk Investment Scam
     if (
@@ -1360,8 +1450,6 @@ function detectScamType(message) {
 
     // Phishing Scam
     if (
-        message.includes("http://") ||
-        message.includes("https://") ||
         message.includes("bit.ly") ||
         message.includes("tinyurl") ||
         message.includes("t.co") ||
@@ -1374,5 +1462,14 @@ function detectScamType(message) {
         return "Phishing Scam";
     }
 
+    if (
+        message.includes("http://") ||
+        message.includes("https://")
+    ) {
+        return "Link Detected";
+    }
+
     return "No Scam Detected";
 }
+
+renderHistory();

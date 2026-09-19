@@ -582,4 +582,74 @@ footer p:last-child {
     .button-group button {
         width: 100%;
     }
+
+    .history-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    }
+}
+
+.history-card {
+    background: linear-gradient(145deg, #151c32, #11182b);
+    margin-top: 25px;
+    padding: 25px;
+    border-radius: 20px;
+    border: 1px solid #2c3652;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+}
+
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid #27304a;
+}
+
+.history-header h2 {
+    font-size: 21px;
+    color: #e8ecf7;
+}
+
+#clearHistoryBtn {
+    width: auto;
+    margin-top: 0;
+    padding: 9px 14px;
+    font-size: 13px;
+    background: #1b2438;
+    border: 1px solid #39435f;
+    color: #c7cede;
+}
+
+.empty-history {
+    margin-top: 20px;
+    color: #69738d;
+    text-align: center;
+}
+
+.history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-top: 15px;
+    padding: 15px 18px;
+    background: #0f172b;
+    border: 1px solid #27304a;
+    border-radius: 12px;
+}
+
+.history-item strong {
+    color: #e8ecf7;
+}
+
+.history-item span {
+    color: #6c8cff;
+    font-weight: bold;
+}
+
+.history-item small {
+    color: #69738d;
 }
