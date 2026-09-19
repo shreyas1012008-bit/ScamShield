@@ -39,6 +39,8 @@ function clearHistory() {
 
     historyList.innerHTML =
         '<p class="empty-history">No scans yet.</p>';
+    
+    updateDashboardStats();
 }
 
 function saveToHistory(
@@ -83,7 +85,7 @@ function renderHistory() {
 
     historyList.innerHTML = "";
 
-    history.forEach(scan => {
+    history.forEach((scan, index) => {
         const item = document.createElement("div");
         item.className = "history-item";
 
@@ -94,11 +96,27 @@ function renderHistory() {
             window.location.href = "history.html";
         });
 
-        item.innerHTML = `
-            <strong>${scan.type}</strong>
-            <span>${scan.score}/100</span>
-            <small>${scan.time}</small>
-        `;
+    item.innerHTML = `
+        <strong>${scan.type}</strong>
+        <span>${scan.score}/100</span>
+        <small>${scan.time}</small>
+        <button class="delete-scan-btn">🗑️</button>
+    `;
+
+    const deleteBtn = item.querySelector(".delete-scan-btn");
+
+    deleteBtn.addEventListener("click", (event) => {
+        event.stopPropagation();
+
+        const history = JSON.parse(localStorage.getItem("scamHistory")) || [];
+
+        history.splice(index, 1);
+
+        localStorage.setItem("scamHistory", JSON.stringify(history));
+
+        renderHistory();
+        updateDashboardStats();
+    });
 
         historyList.appendChild(item);
     });
@@ -1131,6 +1149,7 @@ function analyzeMessage() {
     );
 
     renderHistory();
+    updateDashboardStats();
 
     analyzeBtn.textContent = "🔍 Analyze Now";
     analyzeBtn.disabled = false;
@@ -1473,3 +1492,33 @@ function detectScamType(message) {
 }
 
 renderHistory();
+
+const totalScansElement = document.getElementById("totalScans");
+const dangerousScansElement = document.getElementById("dangerousScans");
+const suspiciousScansElement = document.getElementById("suspiciousScans");
+const lowRiskScansElement = document.getElementById("lowRiskScans");
+
+function updateDashboardStats() {
+    const history = JSON.parse(localStorage.getItem("scamHistory")) || [];
+
+    let dangerous = 0;
+    let suspicious = 0;
+    let lowRisk = 0;
+
+    history.forEach(scan => {
+        if (scan.score >= 70) {
+            dangerous++;
+        } else if (scan.score >= 21) {
+            suspicious++;
+        } else {
+            lowRisk++;
+        }
+    });
+
+    totalScansElement.textContent = history.length;
+    dangerousScansElement.textContent = dangerous;
+    suspiciousScansElement.textContent = suspicious;
+    lowRiskScansElement.textContent = lowRisk;
+}
+
+updateDashboardStats();

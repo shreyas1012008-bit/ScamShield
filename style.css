@@ -653,3 +653,56 @@ footer p:last-child {
 .history-item small {
     color: #69738d;
 }
+
+.dashboard-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin: 25px 0 30px;
+}
+
+.dashboard-stat {
+    padding: 20px 15px;
+    background: linear-gradient(145deg, #151c32, #11182b);
+    border: 1px solid #2c3652;
+    border-radius: 16px;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.18);
+}
+
+.dashboard-stat strong {
+    display: block;
+    font-size: 28px;
+    color: #6c8cff;
+    margin-bottom: 7px;
+}
+
+.dashboard-stat span {
+    color: #aab2c8;
+    font-size: 13px;
+}
+
+@media (max-width: 700px) {
+    .dashboard-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.delete-scan-btn {
+    width: auto;
+    margin: 0;
+    padding: 5px;
+    background: transparent;
+    border: none;
+    color: #aab2c8;
+    font-size: 18px;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.delete-scan-btn:hover {
+    color: #ff4d4d;
+    background: transparent;
+    box-shadow: 0 0 12px rgba(255, 77, 77, 0.35);
+    transform: scale(1.08);
+}
