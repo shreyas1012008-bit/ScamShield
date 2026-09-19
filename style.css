@@ -687,22 +687,3 @@ footer p:last-child {
         grid-template-columns: repeat(2, 1fr);
     }
 }
-
-.delete-scan-btn {
-    width: auto;
-    margin: 0;
-    padding: 5px;
-    background: transparent;
-    border: none;
-    color: #aab2c8;
-    font-size: 18px;
-    cursor: pointer;
-    transition: 0.3s ease;
-}
-
-.delete-scan-btn:hover {
-    color: #ff4d4d;
-    background: transparent;
-    box-shadow: 0 0 12px rgba(255, 77, 77, 0.35);
-    transform: scale(1.08);
-}

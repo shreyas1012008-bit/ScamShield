@@ -85,7 +85,7 @@ function renderHistory() {
 
     historyList.innerHTML = "";
 
-    history.forEach((scan, index) => {
+    history.forEach(scan => {
         const item = document.createElement("div");
         item.className = "history-item";
 
@@ -100,23 +100,7 @@ function renderHistory() {
         <strong>${scan.type}</strong>
         <span>${scan.score}/100</span>
         <small>${scan.time}</small>
-        <button class="delete-scan-btn">🗑️</button>
     `;
-
-    const deleteBtn = item.querySelector(".delete-scan-btn");
-
-    deleteBtn.addEventListener("click", (event) => {
-        event.stopPropagation();
-
-        const history = JSON.parse(localStorage.getItem("scamHistory")) || [];
-
-        history.splice(index, 1);
-
-        localStorage.setItem("scamHistory", JSON.stringify(history));
-
-        renderHistory();
-        updateDashboardStats();
-    });
 
         historyList.appendChild(item);
     });
