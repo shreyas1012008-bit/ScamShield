@@ -1,5 +1,6 @@
 const analyzeBtn = document.getElementById("analyzeBtn");
 const screenshotInput = document.getElementById("screenshotInput");
+let uploadedScreenshots = [];
 const imagePreview = document.getElementById("imagePreview");
 const imageModal = document.getElementById("imageModal");
 const modalImage = document.getElementById("modalImage");
@@ -39,6 +40,8 @@ screenshotInput.addEventListener("change", () => {
 
     files.forEach(file => {
 
+        uploadedScreenshots.push(file);
+
         const imageURL = URL.createObjectURL(file);
 
         const previewImage = document.createElement("img");
@@ -67,6 +70,7 @@ function clearAnalysis() {
 
     screenshotInput.value = "";
     imagePreview.innerHTML = "";
+    uploadedScreenshots = [];
 
     result.classList.add("hidden");
 
@@ -154,18 +158,29 @@ function renderHistory() {
     });
 }
 
-function analyzeMessage() {
+async function analyzeMessage() {
 
     analyzeBtn.textContent = "🔄 Analyzing...";
     analyzeBtn.disabled = true;
 
-    const message = messageInput.value.trim().toLowerCase();
+    let message = messageInput.value.trim().toLowerCase();
 
-    if (message === "") {
-        alert("Please paste a message first.");
+    if (message === "" && uploadedScreenshots.length === 0) {
+        alert("Please enter a message or upload a screenshot.");
         analyzeBtn.textContent = "🔍 Analyze Now";
         analyzeBtn.disabled = false;
         return;
+    }
+
+    if (uploadedScreenshots.length > 0) {
+
+        let extractedText = "";
+
+        for (const file of uploadedScreenshots) {
+            extractedText += await extractTextFromImage(file) + "\n";
+        }
+
+        message += "\n" + extractedText.toLowerCase();
     }
 
     let score = 0;
@@ -1554,3 +1569,12 @@ function updateDashboardStats() {
 }
 
 updateDashboardStats();
+
+async function extractTextFromImage(file) {
+    const result = await Tesseract.recognize(
+        file,
+        "eng"
+    );
+
+    return result.data.text;
+}
