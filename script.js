@@ -1,4 +1,15 @@
 const analyzeBtn = document.getElementById("analyzeBtn");
+const screenshotInput = document.getElementById("screenshotInput");
+const imagePreview = document.getElementById("imagePreview");
+const imageModal = document.getElementById("imageModal");
+const modalImage = document.getElementById("modalImage");
+const closeImageModal = document.getElementById("closeImageModal");
+closeImageModal.addEventListener("click", () => {
+    imageModal.style.display = "none";
+    modalImage.src = "";
+    document.body.style.overflow = "";
+});
+const uploadScreenshotBtn = document.getElementById("uploadScreenshotBtn");
 const messageInput = document.getElementById("message");
 const clearBtn = document.getElementById("clearBtn");
 
@@ -18,8 +29,45 @@ analyzeBtn.addEventListener("click", analyzeMessage);
 clearBtn.addEventListener("click", clearAnalysis);
 clearHistoryBtn.addEventListener("click", clearHistory);
 
+uploadScreenshotBtn.addEventListener("click", () => {
+    screenshotInput.click();
+});
+
+screenshotInput.addEventListener("change", () => {
+
+    const files = Array.from(screenshotInput.files);
+
+    files.forEach(file => {
+
+        const imageURL = URL.createObjectURL(file);
+
+        const previewImage = document.createElement("img");
+
+        previewImage.src = imageURL;
+        previewImage.alt = "Selected screenshot";
+
+        previewImage.addEventListener("click", () => {
+
+            modalImage.onload = () => {
+                imageModal.style.display = "flex";
+                document.body.style.overflow = "hidden";
+            };
+
+            modalImage.src = imageURL;
+        });
+
+        imagePreview.appendChild(previewImage);
+    });
+
+    screenshotInput.value = "";
+});
+
 function clearAnalysis() {
     messageInput.value = "";
+
+    screenshotInput.value = "";
+    imagePreview.innerHTML = "";
+
     result.classList.add("hidden");
 
     riskScore.textContent = "0/100";

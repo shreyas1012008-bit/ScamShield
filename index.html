@@ -66,13 +66,33 @@
 
                 <label for="message">Paste suspicious content</label>
 
-                <textarea
-                    id="message"
-                    placeholder="Example: Congratulations! You have won ₹50,000. Click this link to claim your prize..."
-                ></textarea>
+                <div class="message-box">
+
+                <div id="imagePreview" class="image-preview"></div>
+
+                    <textarea
+                        id="message"
+                        placeholder="Type or paste the message here..."
+                    ></textarea>
+
+                </div>
 
                 <div class="input-hint">
                     🔒 Your message is analyzed securely. Never share passwords or real OTPs.
+                </div>
+
+                <div class="image-upload">
+                    <button type="button" id="uploadScreenshotBtn">
+                        🖼️ Add Screenshot
+                    </button>
+
+                    <input
+                        type="file"
+                        id="screenshotInput"
+                        accept="image/*"
+                        multiple
+                        hidden
+                    >
                 </div>
 
                 <div class="button-group">
@@ -154,6 +174,11 @@
             </section>
 
         </main>
+
+        <div id="imageModal" class="image-modal">
+            <button id="closeImageModal">✕</button>
+            <img id="modalImage" src="" alt="Screenshot preview">
+        </div>
 
         <footer>
             <p>ScamShield © 2026</p>
