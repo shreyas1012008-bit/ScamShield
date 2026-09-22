@@ -1,0 +1,27 @@
+{
+  "name": "scamshield",
+  "version": "1.0.0",
+  "description": "",
+  "main": "history.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shreyas1012008-bit/ScamShield.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/shreyas1012008-bit/ScamShield/issues"
+  },
+  "homepage": "https://github.com/shreyas1012008-bit/ScamShield#readme",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.3",
+    "express": "^5.2.1",
+    "openai": "^7.21.0"
+  }
+}

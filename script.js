@@ -12,6 +12,7 @@ closeImageModal.addEventListener("click", () => {
 });
 const uploadScreenshotBtn = document.getElementById("uploadScreenshotBtn");
 const messageInput = document.getElementById("message");
+const aiAnalysis = document.getElementById("aiAnalysis");
 const clearBtn = document.getElementById("clearBtn");
 
 const clearHistoryBtn = document.getElementById("clearHistoryBtn");
@@ -182,6 +183,13 @@ async function analyzeMessage() {
 
         message += "\n" + extractedText.toLowerCase();
     }
+
+    const aiResult = await analyzeWithAI(message);
+
+    console.log("AI ANALYSIS:");
+    console.log(aiResult);
+
+    aiAnalysis.textContent = aiResult;
 
     let score = 0;
     let detectedReasons = [];
@@ -1577,4 +1585,25 @@ async function extractTextFromImage(file) {
     );
 
     return result.data.text;
+}
+
+async function analyzeWithAI(message) {
+
+    const response = await fetch("http://localhost:3000/analyze", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            message: message
+        })
+    });
+
+    if (!response.ok) {
+        throw new Error("AI analysis failed");
+    }
+
+    const data = await response.json();
+
+    return data.analysis;
 }
