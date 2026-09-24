@@ -189,7 +189,7 @@ async function analyzeMessage() {
     console.log("AI ANALYSIS:");
     console.log(aiResult);
 
-    aiAnalysis.textContent = aiResult;
+    aiAnalysis.innerHTML = aiResult.replace(/\n/g, "<br>");
 
     let score = 0;
     let detectedReasons = [];
