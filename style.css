@@ -836,3 +836,18 @@ footer p:last-child {
     border: 1px solid #39435f;
     font-size: 20px;
 }
+
+.ai-main-row {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    margin-bottom: 12px;
+    line-height: 1.8;
+}
+
+.ai-main-row strong {
+    color: #e8ecf7;
+}
+
+.ai-main-row span {
+    color: #c7cede;
+}

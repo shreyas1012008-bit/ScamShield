@@ -79,6 +79,8 @@ function clearAnalysis() {
     scamType.textContent = "Unknown";
     confidence.textContent = "0%";
 
+    aiAnalysis.innerHTML = "";
+
     riskBar.style.width = "0%";
     riskBar.style.background = "linear-gradient(90deg, #4f6df5, #6c8cff)";
     riskBar.style.boxShadow = "0 0 12px rgba(108, 140, 255, 0.45)";
@@ -188,16 +190,34 @@ async function analyzeMessage() {
 
     const aiResult = await analyzeWithAI(message);
 
-    console.log("AI ANALYSIS:");
-    console.log(aiResult);
+    const aiText = aiResult.trim();
 
-    aiAnalysis.innerHTML = aiResult
-        .trim()
-        .replace(/^Risk level:/im, "🔴 <strong>Risk Level</strong>")
-        .replace(/^Scam type:/im, "🎯 <strong>Scam Type</strong>")
-        .replace(/^Short explanation:/im, "📝 <strong>Explanation</strong>")
-        .replace(/^Recommended action:/im, "🛡️ <strong>Recommended Action</strong>")
-        .replace(/\n/g, "<br>");
+    const risk = aiText.match(/^Risk level:\s*(.*)$/im);
+    const aiScamType = aiText.match(/^Scam type:\s*(.*)$/im);
+    const explanation = aiText.match(/^Short explanation:\s*(.*)$/im);
+    const action = aiText.match(/^Recommended action:\s*(.*)$/im);
+
+    aiAnalysis.innerHTML = `
+        <div class="ai-main-row">
+            <strong>🔴 Risk Level</strong>
+            <span>${risk ? risk[1] : ""}</span>
+        </div>
+
+        <div class="ai-main-row">
+            <strong>🎯 Scam Type</strong>
+            <span>${aiScamType ? aiScamType[1] : ""}</span>
+        </div>
+
+        <div class="ai-main-row">
+            <strong>📝 Explanation</strong>
+            <span>${explanation ? explanation[1] : ""}</span>
+        </div>
+
+        <div class="ai-main-row">
+            <strong>🛡️ Recommended Action</strong>
+            <span>${action ? action[1] : ""}</span>
+        </div>
+    `;
 
     let score = 0;
     let detectedReasons = [];
