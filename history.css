@@ -79,3 +79,26 @@
         width: 100%;
     }
 }
+
+.ai-history-section {
+    border-left: 4px solid #6c8cff;
+}
+
+.ai-history-section h2 {
+    color: #6c8cff;
+}
+
+.ai-history-section p {
+    line-height: 1.8;
+    white-space: pre-wrap;
+}
+
+.ai-history-section p strong {
+    display: inline-block;
+    min-width: 180px;
+    color: #e8ecf7;
+}
+
+.ai-history-section p br {
+    line-height: 2;
+}

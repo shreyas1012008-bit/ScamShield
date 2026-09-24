@@ -102,7 +102,8 @@ function saveToHistory(
     type,
     detectedReasons,
     confidence,
-    advice
+    advice,
+    aiAnalysis
 ) {
     const scan = {
         message: message,
@@ -117,6 +118,7 @@ function saveToHistory(
         reasons: detectedReasons,
         confidence: confidence,
         advice: advice,
+        aiAnalysis: aiAnalysis,
         time: new Date().toLocaleTimeString()
     };
 
@@ -189,7 +191,13 @@ async function analyzeMessage() {
     console.log("AI ANALYSIS:");
     console.log(aiResult);
 
-    aiAnalysis.innerHTML = aiResult.replace(/\n/g, "<br>");
+    aiAnalysis.innerHTML = aiResult
+        .trim()
+        .replace(/^Risk level:/im, "🔴 <strong>Risk Level</strong>")
+        .replace(/^Scam type:/im, "🎯 <strong>Scam Type</strong>")
+        .replace(/^Short explanation:/im, "📝 <strong>Explanation</strong>")
+        .replace(/^Recommended action:/im, "🛡️ <strong>Recommended Action</strong>")
+        .replace(/\n/g, "<br>");
 
     let score = 0;
     let detectedReasons = [];
@@ -1200,7 +1208,8 @@ async function analyzeMessage() {
         type,
         detectedReasons,
         confidence.textContent,
-        adviceText.textContent
+        adviceText.textContent,
+        aiResult
     );
 
     renderHistory();

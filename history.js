@@ -55,7 +55,24 @@ if (!scan) {
             <p>${scan.advice || "No advice available."}</p>
         </div>
 
+        <div class="detail-section ai-history-section">
+            <h2>🤖 AI Analysis</h2>
+            <p id="historyAIAnalysis"></p>
+        </div>
+
     `;
+}
+
+const historyAIAnalysis = document.getElementById("historyAIAnalysis");
+
+if (historyAIAnalysis && scan && scan.aiAnalysis) {
+    historyAIAnalysis.innerHTML = scan.aiAnalysis
+        .trim()
+        .replace(/^Risk level:/im, "🔴 <strong>Risk Level</strong>")
+        .replace(/^Scam type:/im, "🎯 <strong>Scam Type</strong>")
+        .replace(/^Short explanation:/im, "📝 <strong>Explanation</strong>")
+        .replace(/^Recommended action:/im, "🛡️ <strong>Recommended Action</strong>")
+        .replace(/\n/g, "<br>");
 }
 
 const riskLevelElement = document.getElementById("detailRiskLevel");
