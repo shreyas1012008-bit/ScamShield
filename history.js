@@ -57,7 +57,7 @@ if (!scan) {
 
         <div class="detail-section ai-history-section">
             <h2>🤖 AI Analysis</h2>
-            <p id="historyAIAnalysis"></p>
+            <div id="historyAIAnalysis"></div>
         </div>
 
     `;
@@ -66,13 +66,35 @@ if (!scan) {
 const historyAIAnalysis = document.getElementById("historyAIAnalysis");
 
 if (historyAIAnalysis && scan && scan.aiAnalysis) {
-    historyAIAnalysis.innerHTML = scan.aiAnalysis
-        .trim()
-        .replace(/^Risk level:/im, "🔴 <strong>Risk Level</strong>")
-        .replace(/^Scam type:/im, "🎯 <strong>Scam Type</strong>")
-        .replace(/^Short explanation:/im, "📝 <strong>Explanation</strong>")
-        .replace(/^Recommended action:/im, "🛡️ <strong>Recommended Action</strong>")
-        .replace(/\n/g, "<br>");
+
+    const aiText = scan.aiAnalysis.trim();
+
+    const risk = aiText.match(/^Risk level:\s*(.*)$/im);
+    const type = aiText.match(/^Scam type:\s*(.*)$/im);
+    const explanation = aiText.match(/^Short explanation:\s*(.*)$/im);
+    const action = aiText.match(/^Recommended action:\s*(.*)$/im);
+
+    historyAIAnalysis.innerHTML = `
+        <div class="ai-history-row">
+            <strong>🔴 Risk Level</strong>
+            <span>${risk ? risk[1] : ""}</span>
+        </div>
+
+        <div class="ai-history-row">
+            <strong>🎯 Scam Type</strong>
+            <span>${type ? type[1] : ""}</span>
+        </div>
+
+        <div class="ai-history-row">
+            <strong>📝 Explanation</strong>
+            <span>${explanation ? explanation[1] : ""}</span>
+        </div>
+
+        <div class="ai-history-row">
+            <strong>🛡️ Recommended Action</strong>
+            <span>${action ? action[1] : ""}</span>
+        </div>
+    `;
 }
 
 const riskLevelElement = document.getElementById("detailRiskLevel");
