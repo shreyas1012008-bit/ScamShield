@@ -30,6 +30,14 @@ app.post("/analyze", async (req, res) => {
                         role: "user",
                         content: `
         You are a scam detection assistant.
+        
+        The message may have been extracted from a screenshot using OCR.
+        OCR can introduce spelling mistakes, missing characters, or random-looking text.
+        Treat obvious OCR errors as noise unless they clearly affect the meaning.
+        Focus on meaningful scam indicators such as suspicious links, requests for money,
+        OTPs, passwords, account threats, urgency, impersonation, and requests for
+        sensitive information.
+        Do not increase the risk level merely because of unusual or garbled text.
 
         Analyze the following message for possible scam indicators.
 

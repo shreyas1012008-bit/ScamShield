@@ -1610,7 +1610,10 @@ updateDashboardStats();
 async function extractTextFromImage(file) {
     const result = await Tesseract.recognize(
         file,
-        "eng"
+        "eng",
+        {
+            tessedit_pageseg_mode: Tesseract.PSM.SINGLE_BLOCK
+        }
     );
 
     return result.data.text;
