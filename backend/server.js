@@ -30,7 +30,7 @@ app.post("/analyze", async (req, res) => {
                         role: "user",
                         content: `
         You are a scam detection assistant.
-        
+
         The message may have been extracted from a screenshot using OCR.
         OCR can introduce spelling mistakes, missing characters, or random-looking text.
         Treat obvious OCR errors as noise unless they clearly affect the meaning.
@@ -38,6 +38,20 @@ app.post("/analyze", async (req, res) => {
         OTPs, passwords, account threats, urgency, impersonation, and requests for
         sensitive information.
         Do not increase the risk level merely because of unusual or garbled text.
+
+        Distinguish between warning signs and proof of a scam.
+        Do not label a message as definitely fraudulent based only on a shortened URL,
+        urgency, a promotional offer, or a request to claim a reward.
+        Legitimate organizations may also use promotional messages, coupons, and
+        shortened links.
+        If the message contains suspicious indicators but there is not enough evidence
+        to establish fraud, clearly state that the message should be independently
+        verified rather than claiming certainty.
+        Consider the overall context of the message when choosing the risk level.
+
+        Base explanations only on evidence actually present in the message.
+        Do not assume that a reward is unrealistic, a sender is impersonating an organization,
+        or a link is fraudulent unless the message provides evidence supporting that conclusion.
 
         Analyze the following message for possible scam indicators.
 
