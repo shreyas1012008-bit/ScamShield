@@ -1,3 +1,13 @@
+function escapeHTML(str) {
+    if (str === null || str === undefined) return "";
+    return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
 const analyzeBtn = document.getElementById("analyzeBtn");
 const screenshotInput = document.getElementById("screenshotInput");
 let uploadedScreenshots = [];
@@ -154,9 +164,9 @@ function renderHistory() {
         });
 
     item.innerHTML = `
-        <strong>${scan.type}</strong>
-        <span>${scan.score}/100</span>
-        <small>${scan.time}</small>
+        <strong>${escapeHTML(scan.type)}</strong>
+        <span>${escapeHTML(scan.score)}/100</span>
+        <small>${escapeHTML(scan.time)}</small>
     `;
 
         historyList.appendChild(item);
@@ -181,14 +191,32 @@ async function analyzeMessage() {
 
         let extractedText = "";
 
-        for (const file of uploadedScreenshots) {
-            extractedText += await extractTextFromImage(file) + "\n";
+        try {
+            for (const file of uploadedScreenshots) {
+                extractedText += await extractTextFromImage(file) + "\n";
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Couldn't read text from the screenshot(s). Please try again.");
+            analyzeBtn.textContent = "🔍 Analyze Now";
+            analyzeBtn.disabled = false;
+            return;
         }
 
         message += "\n" + extractedText.toLowerCase();
     }
 
-    const aiResult = await analyzeWithAI(message);
+    let aiResult;
+
+    try {
+        aiResult = await analyzeWithAI(message);
+    } catch (err) {
+        console.error(err);
+        alert("AI analysis failed. Please check your connection and try again.");
+        analyzeBtn.textContent = "🔍 Analyze Now";
+        analyzeBtn.disabled = false;
+        return;
+    }
 
     const aiText = aiResult.trim();
 
@@ -200,22 +228,22 @@ async function analyzeMessage() {
     aiAnalysis.innerHTML = `
         <div class="ai-main-row">
             <strong>🔴 Risk Level</strong>
-            <span>${risk ? risk[1] : ""}</span>
+            <span>${escapeHTML(risk ? risk[1] : "")}</span>
         </div>
 
         <div class="ai-main-row">
             <strong>🎯 Scam Type</strong>
-            <span>${aiScamType ? aiScamType[1] : ""}</span>
+            <span>${escapeHTML(aiScamType ? aiScamType[1] : "")}</span>
         </div>
 
         <div class="ai-main-row">
             <strong>📝 Explanation</strong>
-            <span>${explanation ? explanation[1] : ""}</span>
+            <span>${escapeHTML(explanation ? explanation[1] : "")}</span>
         </div>
 
         <div class="ai-main-row">
             <strong>🛡️ Recommended Action</strong>
-            <span>${action ? action[1] : ""}</span>
+            <span>${escapeHTML(action ? action[1] : "")}</span>
         </div>
     `;
 
@@ -1621,7 +1649,7 @@ async function extractTextFromImage(file) {
 
 async function analyzeWithAI(message) {
 
-    const response = await fetch("http://localhost:3000/analyze", {
+    const response = await fetch("/analyze", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"

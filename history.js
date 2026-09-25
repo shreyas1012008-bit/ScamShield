@@ -1,3 +1,13 @@
+function escapeHTML(str) {
+    if (str === null || str === undefined) return "";
+    return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
 const scanDetails = document.getElementById("scanDetails");
 const backBtn = document.getElementById("backBtn");
 
@@ -15,44 +25,44 @@ if (!scan) {
     scanDetails.innerHTML = `
         <div class="detail-section">
             <h2>Original Message</h2>
-            <p>${scan.message}</p>
+            <p>${escapeHTML(scan.message)}</p>
         </div>
 
         <div class="detail-section">
             <h2>Risk Score</h2>
-            <p>${scan.score}/100</p>
+            <p>${escapeHTML(scan.score)}/100</p>
         </div>
 
         <div class="detail-section">
             <h2>Risk Level</h2>
-            <p id="detailRiskLevel">${scan.riskLevel || "N/A"}</p>
+            <p id="detailRiskLevel">${escapeHTML(scan.riskLevel || "N/A")}</p>
         </div>
 
         <div class="detail-section">
             <h2>Scam Type</h2>
-            <p>${scan.type}</p>
+            <p>${escapeHTML(scan.type)}</p>
         </div>
 
         <div class="detail-section">
             <h2>Scan Time</h2>
-            <p>${scan.time}</p>
+            <p>${escapeHTML(scan.time)}</p>
         </div>
 
         <div class="detail-section">
             <h2>Detection Confidence</h2>
-            <p>${scan.confidence || "N/A"}</p>
+            <p>${escapeHTML(scan.confidence || "N/A")}</p>
         </div>
 
         <div class="detail-section">
             <h2>Why?</h2>
             <p>${scan.reasons && scan.reasons.length
-                ? scan.reasons.join("\n")
+                ? escapeHTML(scan.reasons.join("\n"))
                 : "No suspicious indicators detected."}</p>
         </div>
 
         <div class="detail-section">
             <h2>🛡️ What should you do?</h2>
-            <p>${scan.advice || "No advice available."}</p>
+            <p>${escapeHTML(scan.advice || "No advice available.")}</p>
         </div>
 
         <div class="detail-section ai-history-section">
@@ -77,22 +87,22 @@ if (historyAIAnalysis && scan && scan.aiAnalysis) {
     historyAIAnalysis.innerHTML = `
         <div class="ai-history-row">
             <strong>🔴 Risk Level</strong>
-            <span>${risk ? risk[1] : ""}</span>
+            <span>${escapeHTML(risk ? risk[1] : "")}</span>
         </div>
 
         <div class="ai-history-row">
             <strong>🎯 Scam Type</strong>
-            <span>${type ? type[1] : ""}</span>
+            <span>${escapeHTML(type ? type[1] : "")}</span>
         </div>
 
         <div class="ai-history-row">
             <strong>📝 Explanation</strong>
-            <span>${explanation ? explanation[1] : ""}</span>
+            <span>${escapeHTML(explanation ? explanation[1] : "")}</span>
         </div>
 
         <div class="ai-history-row">
             <strong>🛡️ Recommended Action</strong>
-            <span>${action ? action[1] : ""}</span>
+            <span>${escapeHTML(action ? action[1] : "")}</span>
         </div>
     `;
 }
